@@ -1,0 +1,79 @@
+<div class="m-content">
+                <div class="row">
+  <div class="col-lg-2"></div>
+  <div class="col-lg-8">
+    <div class="m-portlet">  
+      <div class="m-portlet__body m-portlet__body--no-padding">
+        <div class="m-invoice-2">
+          <div class="m-invoice__wrapper">
+            <div class="m-invoice__head" style="background-image: url(./assets/app/media/img//logos/bg-6.jpg);">  
+              <div class="m-invoice__container m-invoice__container--centered">          
+                <div class="m-invoice__logo">
+                  <a href="#">
+                    <h1>INVOICE</h1>  
+                  </a>         
+                 
+                </div> 
+                <span class="m-invoice__desc">
+                  <span><strong>MobileAdz PTE LTD.</strong></span>
+                  <span>1, Raffles Place<br>
+              #20-61, One Raffles Place,<br>
+              Singapore - 048616<br><i class="fa fa-phone"></i> +65-3163-3222</span>
+                </span>
+                <div class="m-invoice__items">
+                  <div class="m-invoice__item">
+                    <span class="m-invoice__subtitle">DATE</span>
+                    <span class="m-invoice__text">{{time}}</span>
+                  </div>
+                  <div class="m-invoice__item">
+                    <span class="m-invoice__subtitle">INVOICE NO.</span>
+                    <span class="m-invoice__text">{{trId}}</span>
+                  </div>
+                  <div class="m-invoice__item">
+                    <span class="m-invoice__subtitle">INVOICE TO.</span>
+                    <span class="m-invoice__text">{{email}}</span>
+                  </div>
+                </div>
+              </div>            
+            </div>
+            <div class="m-invoice__body m-invoice__body--centered">
+              <div class="table-responsive"> 
+                  <table class="table table-striped">
+                  <thead>                      
+                    <tr>
+                      <th class="text-left">Transaction Id</th>
+                      <th class="text-left">Description</th>
+                      <th class="text-left">AMOUNT</th>
+                    </tr>
+                  </thead>  
+                  <tbody>  
+                    <tr>
+                      <td class="text-left" style="font-size: 14px; font-weight: none;">{{trId}}</td>
+                      <td class="text-left" style="font-size: 14px; font-weight: none;">Payment for advertising credits</td>
+                      <td class="m--font-success">${{amount}}</td>
+                    </tr> 
+                    <tr>
+                      <td class="text-right" colspan="2">Transection Fee</td>
+                      <td class="m--font-success">${{trFee}}</td>
+                    </tr>
+                     <tr>
+                      <td class="text-right" colspan="2">Subtotal</td>
+                      <td class="m--font-success">${{total}}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-right" colspan="2">Total Amount</td>
+                      <td class="m--font-success">${{total}}</td>
+                    </tr>
+                                
+                  </tbody> 
+                </table>
+              </div>              
+            </div>
+                    
+          </div>   
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-2"></div>  
+  </div>
+</div>    

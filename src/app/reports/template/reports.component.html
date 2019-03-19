@@ -1,0 +1,230 @@
+<div class="row text-right" style="margin-top: 10px;">
+  <div class="col-md-6"></div>
+
+  <div class="col-md-6 text-right" style="padding-right:0px;">
+ <lib-daterangepicker [(start)]="start" [(end)]="end" format="MM-DD-YYYY" opens="left" [pill]="true" (complete)="updateReport($event)" [(maxDate)]="maxDate" [(ranges)]="customRanges"></lib-daterangepicker>
+ <button class="btn btn-primary">Export Report</button>
+
+  </div>
+</div>
+<div class="snippet" *ngIf="reportLoading === true">
+            <div class="stage">
+              <div class="dot-typing"></div>
+            </div>
+          </div>
+
+<div class="row filter-row" style="border-bottom: 1px solid #ccc; margin-top: 20px;">
+	<div class="general-selected-filters">
+	Filter by: 
+
+	<div class="filter-item" *ngFor="let filter of sFilters">
+	   <div class="clause"   *ngIf="filter.values.length > 0">
+	      <span class="attribute" (click)="getFilterValues(filter,$event)">{{ filter.label  }} :</span>
+	      <span class="value" *ngIf="filter.values.length < 3" (click)="getFilterValues(filter,$event)">{{ arrToString(filter.values)
+	        }}</span>
+	        <span class="value" *ngIf="filter.values.length >= 3" (click)="getFilterValues(filter,$event)">{{ filter.values | slice:0:2 }} +{{ filter.values.length-2 }}</span>
+
+          <span class="remove-icon" ><i class="fa fa-times-circle" (click)="updateFilters(filter,'d')"></i></span>
+	      
+	  </div>
+	   </div>
+
+
+	</div>
+
+	<div class="addfilter btn btn-sm" (click)="openFilterSelection($event)" style="margin: -2px 0px;
+    text-align: right;
+    right: 10px;
+    position: absolute;">
+	<i class="fa fa-plus"></i> 
+	</div>
+</div>
+<div class="row split-row">
+	<div class="general-selected-filters">
+	Split by:
+	
+	<div class="filter-item" *ngFor="let filter of splitOpt">
+	   <div class="clause">
+	      <span class="attribute">{{ filter.text  }}</span>
+	      <span class="remove-icon"><i class="fa fa-times-circle" (click)="updateFilters(filter,'s')"></i></span>
+	  </div>
+	   </div> 
+
+	</div>
+
+	<div class="addfilter btn btn-sm" (click)="openSplitSelection($event)" style="margin: 1px 0px;
+    text-align: right;
+    right: 10px;
+    position: absolute;">
+	<i class="fa fa-plus"></i> 
+	</div>
+</div>
+
+
+<div class="popover-overlay-container" *ngIf="filterSelection || splitSelection " >
+      <div class="popover-overlay" (click)="hidePopup()"></div>
+      <div></div>
+</div>
+
+<div class="add-filter-menu" *ngIf="filterSelection" [@enterAnimation]  [ngStyle]="{'top': posY, 'left': posX}" >
+   
+   <div class="add-filter-menu-results-container" >
+      <div class="attribute-selector" *ngIf="dimentionSelection">
+         <div class="clearable-input"  placeholder="Search">
+            <input placeholder="Search" type="text" [(ngModel)]="query">
+            <div class="delete-button"></div>
+         </div>
+         <ul class="menu-options attribute-choices" >
+         	<li *ngFor="let dimention of filterDimentions | searchfilter: query"  class="" (click)="getFilterValues(dimention)">{{ dimention.text }}</li>
+         </ul>
+      </div>
+      <div class="value-selector" *ngIf="dValueSelection">
+         <div class="clearable-input" >
+            <input placeholder="Search" type="text" name="searchText" [(ngModel)]="q" (input)="onSearchChange()">
+            <div class="delete-button" ></div>
+         </div>
+         <div class="list-cont">
+            <div class="dvalue-loading" *ngIf="appLoading==true">
+               <div class="m-loader m-loader--primary" style="width: 30px; display: inline-block;"></div>
+            </div>
+
+            <ul class="menu-options attribute-values" >
+         		<li *ngFor="let dimention of filterDimentionsValues"  class="" (click)="selectFilters(dimention);">
+         			<label class="m-checkbox app-checkbox" *ngIf="currentSelectedDimension !== '__time'">
+						<input type="checkbox" (click)="selectFilters(dimention)" [checked]="((-1 !== checkIfDimvalueExists(dimention)) ? 'checked' : '')"/>
+					{{ dimention[currentSelectedDimension]}}
+						<span></span>
+					</label>
+          <label class="m-checkbox app-checkbox" *ngIf="currentSelectedDimension === '__time'">
+            <input type="checkbox" (click)="selectFilters(dimention)" [checked]="((-1 !== checkIfDimvalueExists(dimention)) ? 'checked' : '')"/>
+            {{ dimention[currentSelectedDimension]  | date:'dd-MM-yyyy HH:mm:ss Z'}}
+            <span></span>
+          </label>
+
+         		</li>
+         	</ul>
+            <!-- <div class="no-results">No results</div> -->
+         </div>
+         <div class="bottom-bar text-right" >
+            
+           	<button class="apply-button btn btn-sm btn-danger " (click)="goBackToDimensions()" style="position: absolute;
+    top: 6px;
+    right: 77px;
+    height: 28px;
+    font-size: 13px;">Back</button>
+            <button class="apply-button btn btn-sm btn-primary" (click)="getReport()">Apply</button>
+         </div>
+      </div>
+   </div>
+</div>
+	
+<div class="add-filter-menu" *ngIf="splitSelection" [@enterAnimation]  [ngStyle]="{'top': posY, 'left': posX}" >
+   
+   <div class="add-filter-menu-results-container" >
+      <div class="attribute-selector" *ngIf="dimentionSelection">
+         <div class="clearable-input"  placeholder="Search">
+            <input placeholder="Search" type="text" [(ngModel)]="query">
+            <div class="delete-button"></div>
+         </div>
+         <ul class="menu-options attribute-choices" >
+         	<li *ngFor="let dimention of filterDimentions | searchfilter: query"  class="" (click)="selectSplitDimention(dimention)" >{{ dimention.text }}</li>
+         </ul>
+      </div>
+   </div>
+</div>
+
+<div class="chart-container" style="display: none;">
+  <div class="report-nav" style="margin-top: 30px; margin-bottom: 30px;">
+    <ul class="nav nav-pills nav-justified">
+        <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'impressions'}" (click)="updateGraph('impressions')"><a href="javascript:void(0)" class="plotgraph" data-label="Clicks" >3.88M<span>Impressions</span></a></li>
+        <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'conversions'}" (click)="updateGraph('conversions')"><a href="javascript:void(0)" class="plotgraph" data-label="Conversions" data-yparam="totalConversions">742<span>Conversions</span></a></li>
+                  
+
+        <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'wins'}" (click)="updateGraph('wins')"><a href="javascript:void(0)" class="plotgraph" data-label="Revenue" data-yparam="totalRevenueOg">$ 1.16k <span>Wins</span></a></li>
+
+        <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'cost'}" (click)="updateGraph('cost')"><a href="javascript:void(0)" class="plotgraph" data-label="Payout" data-yparam="totalRevenue">$ 823.43 <span>Cost</span></a></li>
+
+        <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'bids'}" (click)="updateGraph('bids')"><a href="javascript:void(0)" class="plotgraph" data-label="CR" data-yparam="conversionRatio">0.02%<span>Bids</span></a></li>
+        <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'rev_payout'}" (click)="updateGraph('rev_payout')" style="border-right:1px solid #eaeaea;"><a href="javascript:void(0)" class="plotgraph" data-label="RPM" data-yparam="epc">$ 0.30<span>Revenue Payout</span></a></li>
+    </ul>
+
+  </div>
+
+  <highcharts-chart 
+  [Highcharts]="Highcharts"
+  [constructorType]="chartConstructor"
+  [options]="chartOptions"
+  
+  style="width: 100%; height: 350px; display: block;"
+></highcharts-chart>
+</div>
+
+<div class="report-table-header" style="margin-top: 30px;" *ngIf="reportData.length > 0">
+  <div class="row report-row-header" >
+      <div class="col-4" style="padding-left: 5px;">#</div>
+      <div class="col-2">Impressions</div>
+      <div class="col-2">Conversion</div>
+      <div class="col-1">Bids</div>
+      <div class="col-1">Wins</div>
+      <div class="col-1">Spend</div>    
+      <div class="col-1 text-center" >Actions</div>    
+  </div>
+</div>
+
+
+
+
+
+<div class="report-table-container" >
+  <div *ngIf="reportData.length > 0">
+  <div class="row" style="background-color: rgb(255, 255, 255);font-weight: 600;padding: 15px 0px;border-bottom: 1px solid #ddd;" >
+      <div class="col-4 text-right" style="padding-left: 5px;"></div>
+      <div class="col-2">{{convertToDecimals(totalImpressions,2)}}</div>
+      <div class="col-2">{{convertToDecimals(totalConversions,2)}}</div>
+      <div class="col-1"> {{convertToDecimals(totalBids,2)}}</div>
+      <div class="col-1"> {{convertToDecimals(totalWins,2)}}</div>
+      <div class="col-1">$ {{convertToDecimals(totalSpend,2)}}</div>    
+      <div class="col-1 text-center">N/A</div>    
+  </div>
+</div>
+	<ng-container *ngFor="let rData of reportData; let i = index; last as isLast" >
+	<div class="row report-row" >
+			<div class="col-4" style="padding-left: 5px; word-break: break-all;">
+				<button 
+					 class="btn report-btn-sm" 
+					 *ngIf="checkIfHaveMoreSplits(this.splitOpt[0].id) !== 0 && rData.isCollapsed == true"
+					 (click)="splitData(rowWiseFilterObj(rData,this.splitOpt[0].id),this.splitOpt[0].id,sFilters,splitOpt,i,rData,selectedDate)"
+					 row="rData">+</button>
+        <button 
+           class="btn report-btn-sm" 
+           *ngIf="checkIfHaveMoreSplits(this.splitOpt[0].id) !== 0 && rData.isCollapsed == false" 
+           (click)="removeDynamicComponent(rData,i)"
+           >-</button>
+				  <span *ngIf="this.splitOpt[0].id !== '__time'">{{rData[this.splitOpt[0].id]}}</span>
+          <span *ngIf="this.splitOpt[0].id === '__time'">{{ rData[this.splitOpt[0].id]  | date:'dd-MM-yyyy HH:mm:ss Z'}}</span>
+			</div>
+			<div class="col-2">{{convertToDecimals(rData.impressions,2)}}</div>
+      <div class="col-2">{{convertToDecimals(rData.conversions,2)}}</div>
+      <div class="col-1">{{convertToDecimals(rData.bids,2)}}</div>
+      <div class="col-1" >{{convertToDecimals(rData.wins,2)}}</div>
+			<div class="col-1">$ {{convertToDecimals(rData.spend,2)}}</div>
+      <div class="col-1 text-center">
+        <button class="btn btn-secondary m-btn m-btn--label-danger m-btn--label-danger m-btn--bolder m-btn--uppercase btn-sm" *ngIf="rData.isCollapsed===true"> <i class="la la-close"></i> </button>
+        <button class="btn btn-secondary m-btn m-btn--label-danger m-btn--bolder m-btn--uppercase btn-sm" disabled="disabled" *ngIf="rData.isCollapsed===false"> <i class="la la-ban"></i> </button>
+      </div>
+
+	</div>
+	   <div *ngIf="isLast" class="text-right col-12">{{altrows("#ffffff","#f5f5f5")}}
+
+            <a href="javascript:void(0)" class="m-link" (click)="loadmore()" style="    margin: 10px -30px 15px 10px;
+    background: #5ccdde;
+    color: #fff;
+    padding: 2px 10px;
+    font-size: 12px;" *ngIf="reportData.length > 19"> Load more </a>
+        </div>
+		<ng-template #dynamic ></ng-template>
+    
+    </ng-container>
+</div>
+
+

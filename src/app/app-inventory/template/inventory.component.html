@@ -1,0 +1,343 @@
+
+
+<div class="row" style="margin-left: -35px;">
+    <div class="cd-filter filter-is-visible" >
+        <ng-scrollbar [autoUpdate]="true">
+        <div class="">
+            <form class="m-form m-form--fit m-form--label-align-right">
+                <div>
+                    <div class="form-group m-form__group m--margin-top-70">
+                        <label for="Exchanges">
+                            Exchanges {{exchnageCountries}}
+                        </label>
+                        <ng-select [items]="filterExchangesData"
+                              bindLabel="text"
+                              name="filterExchanges"
+                              placeholder = "Select exchnage"
+                              bindValue="id"
+                              [(ngModel)]="filterExchanges"
+                              (clear)="onExchangeRemove($event)"
+                              (change)="onChangeExchange($event)"
+                              [disabled]="readonlyExchanges == true ? true : false"
+                              >
+                              </ng-select>
+                    </div>
+
+                    <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            App Name
+                        </label>
+                        
+
+                        <div class="input-group">
+                          <input type="text" class="form-control" placeholder="Search for..." placeholder="Search by app name" type="text" name="searchByAppName"  [(ngModel)]="searchByAppName"  id="searchByAppName" (keyup.enter)= "loadCountries()" 
+                          [disabled]="apps.length > 0 ? false : true"
+                          >
+                          <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" (click)="loadCountries
+                            ()"><i class="fa fa-search"></i></button>
+                          </div>
+                        </div>
+
+                    </div>
+                     <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            Countries
+                        </label>
+                            <ng-select [items]="exchnageCountriesData"
+                              bindLabel="text"
+                              name="campaignCountries"
+                              placeholder = "Select country"
+                              [multiple]="true"
+                              [hideSelected]="true"
+                              
+                              [(ngModel)]="exchnageCountries"
+                              (remove) = "countriesRemove($event)"
+                              (add) = "countriesAdd($event)"
+                              (change)="onCountriesChange($event)"
+                              (clear)="onCountriesClear()"
+                              >
+                              </ng-select>
+                    </div>
+                     <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            Carriers
+                        </label>
+                        <ng-select [items]="exchnageCarriersData"
+                              bindLabel="text"
+                              name="exchnageCarriers"
+                              placeholder = "Select carrier"
+                              [multiple]="true"
+                              [hideSelected]="true"
+                              [(ngModel)]="exchnageCarriers"
+                              (add) = "carriersAdd($event)"
+                              (remove) = "carriersRemove($event)"
+                              (change)="onCarriersChange($event)"
+                              (clear)="onCarriersClear()"
+                              
+                              >
+                              </ng-select>
+                    </div>
+                     <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            Operating System
+                        </label>
+                        <ng-select [items]="exchnageOperatingSystemData" [(ngModel)]="exchnageOperatingSystem"
+                              name="exchnageOperatingSystem"
+                              bindLabel="text"
+                              placeholder="Please select os"
+                              [multiple]="true"
+                              (add)="onOperatingSystemAdd($event)"
+                              (remove)="onOperatingSystemRemove($event)"
+                              (change)="onOsChange($event)"
+                              (clear)="onOSClear()"
+                              >
+                        </ng-select>
+                    </div>
+                     <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            OS Version
+                        </label>
+                         <ng-select [items]="exchnageOperatingSystemVersionData" [(ngModel)]="exchnageOperatingSystemVersion"
+                              name="campaignOperatingSystemVersion"
+                              bindLabel="text"
+                              placeholder="Please select os version"
+                              [multiple]="true"
+                              (remove) = "osversionRemove($event)"
+                              (add) = "osversionAdd($event)"
+                              (change)="onOsVerChange($event)"
+                              (clear)="onOSVersionClear()"
+                              
+
+                            >
+                        </ng-select>
+                        
+                    </div>
+
+                    <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            Network Type
+                        </label>
+                         <ng-select [items]="exchnageNetworkTypeData" [(ngModel)]="exchnageNetworkType"
+                           bindLabel="text"
+                           name="exchnageNetworkType"
+                          
+                           placeholder="Select network type"
+                           (remove) = "networktypeRemove($event)"
+                           (add) = "netowrktypeAdd($event)"
+                           (clear)="onNetworkTypeClear()"
+                           (change)="onNetworkTypeChange($event)"
+                           [multiple]="true"
+                         >
+                         </ng-select>
+                        
+
+                        
+                    </div>
+
+                     <div class="form-group m-form__group" style="display: none;">
+                        <label for="Exchanges">
+                            Creative Type
+                        </label>
+                        <ng-select [items]="exchangeCreativeTypesData" [(ngModel)]="exchangeCreativeTypes"
+                           name="exchangeCreaiveTypes"
+                           bindLabel="name"
+                           bindValue="name"
+                           placeholder="Select creative type"
+                           [multiple]="true"
+                           (change)="onCreativeTypeChange($event)"
+                         >
+                         </ng-select>
+
+                         
+                        
+
+                        
+                    </div>
+
+                    <div class="form-group m-form__group">
+                        <label for="Exchanges">
+                            Creative Size
+                        </label>
+
+
+                        <ng-select [items]="exchnageCreativeSizeData"
+                           bindLabel="text"
+                           placeholder="Select creative size"
+                           name="exchangeCreativeSize"
+                           (remove) = "creativesizeRemove($event)"
+                           (add) = "creativesizeAdd($event)"
+                           (change)="onCreativeSizeChange($event)"
+                           (clear)="onCreativeSizeClear()"
+                           [multiple]="true"
+                            [(ngModel)]="exchnageCreativeSize"
+                        >
+                         </ng-select>
+                       
+                    </div>
+                   
+                </div>
+                <div class="text-center">
+                    <div class="m-form__actions">
+                        <button class="btn btn-primary " type="button" (click)="loadApps()">
+                            Submit
+                        </button>
+                        <button class="btn btn-secondary" type="reset" (click)="resetAll()">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </ng-scrollbar>
+    </div>
+
+
+    <div class="" id="main" style="margin-left:22% !important; margin-top: 26px;
+    width: 78%;
+    margin-left: 20px;">
+    	  <div class="m-portlet m-portlet--mobile">
+
+                
+  <div class="m-portlet m-portlet--mobile">
+
+                <div class="m-portlet__body">
+                    <table class="table table-striped applist-table table-bordered">
+                        <thead>
+                        <tr>
+                            <th width="10%" class="text-center">App Id</th>
+                            <th width="50%">App/Site</th>
+                            <th width="20%">Impressions</th>
+                            <th width="20%">Avg. Bid Price</th>
+                        </tr>
+                        </thead>
+
+                        <tbody class="search-results"
+                      infinite-scroll
+                      [infiniteScrollDistance]="2.5"
+                      [infiniteScrollThrottle]="300"
+                      [scrollWindow] = "true"
+                      (scrolled)="onScroll()"
+                      (scrolledUp)="onScrollUp()"
+                       style="width:100%">
+                        <tr *ngFor="let item of apps; index as i">
+                            <td width="10%" class="text-center">
+                               <label class="m-checkbox m-checkbox--air m-checkbox--state-brand">
+                              <input type="checkbox" value="{{item.sid}}" (change)="updateAppList(item,filterExchanges)" 
+                                    [checked]="((-1 !== checkApplistState(item.sid,filterExchanges)) ? 'checked' : '')"
+                                    >
+                                    <span></span></label>
+
+                            </td>
+                            <td width="50%">{{ item.appName }} </td>
+                            <td width="20%">{{ convertToDecimals(item.impressions,2) }}</td>
+                            <td width="20%">{{ item.avgMinPrice | currency:'USD' }}</td>
+                        </tr>
+                        <tr *ngIf="apps.length == 0" class="text-center">
+                            <td width="100%" colspan="4">No data found</td>
+                            
+                        </tr>    
+                 </tbody>
+                 </table>
+                
+          </div>
+
+    	
+	</div>
+</div>
+
+<ng-template #createapplist let-c="close" let-d="dismiss">
+   <div class="modal-header bg-primary">
+      <h4 class="modal-title text-white">Create/Download Application list</h4>
+      <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+
+      <form class="m-form m-form--fit m-form--label-align-right" novalidate="novalidate">  
+            <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+              <label for="nativeCreativeName">Applist Name</label>
+                  <input aria-describedby="appListName" class="form-control m-input" id="appListName" placeholder="Applist name" type="text" name="appListName" [(ngModel)]="appListName" >
+              </div>
+
+              <div class="form-group m-form__group text-center" style="padding-left: 0px; padding-right: 0px;">
+                     <button class="btn btn-success" type="button" id="submitAppListData" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" (click)="createNewAppList()" [ngClass]="{'m-show': loading}">
+                            Submit
+                     </button>
+
+                    
+
+
+              </div>
+      </form>
+
+    </div>
+  </ng-template>
+
+  <ng-template #viewapplist let-c="close" let-d="dismiss">
+   <div class="modal-header bg-primary">
+      <h4 class="modal-title text-white">Selected Apps</h4>
+      <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+
+      <table class="table table-striped applist-table table-bordered">
+          <thead>
+              <tr>
+                  <th width="10%" class="text-center">#</th>
+                  <th width="20%" >App Id</th>
+                  <th width="70%">App/Site</th>
+                 
+              </tr>
+              </thead>
+
+              <tbody>
+                  <tr *ngFor="let item of selectedAppList; index as i">
+                            <td width="10%" class="text-center">
+                               <label class="m-checkbox m-checkbox--air m-checkbox--state-brand">
+                              <input type="checkbox" value="{{item.sid}}" (change)="updateAppList(item,filterExchanges)" 
+                                    [checked]="((-1 !== checkApplistState(item.sid,filterExchanges)) ? 'checked' : '')"
+                                    >
+                                    <span></span></label>
+
+                            </td>
+                            <td>{{item.sid}}</td>
+                            <td width="90%">{{ item.appName }} </td>
+                            
+                        </tr>
+              </tbody>
+       </table>
+
+    </div>
+    <div class="modal-footer text-center">
+        <button class="btn btn-success" (click)="d('Cross click')">Submit</button>
+        <button class="btn btn-danger" (click)="d('Cross click')">Close</button>
+
+    </div>
+  </ng-template>
+
+  <footer class="sfooter">
+      <div class="container" *ngIf="id == ''">
+        <span class="text-muted">Total Apps: <b>{{totalExchangeApps}}</b>, Total Impressions: <b>{{totalExchangeImpression}}</b></span>
+        <button class="text-right btn btn-primary" style="float: right;margin-top: 13px; margin-left: 10px;" (click)="addNewAppList(createapplist,0)"> Create Whitelist </button>
+        <button class="text-right btn btn-danger" style="float: right;margin-top: 13px;" (click)="addNewAppList(createapplist,1)"> Create Blacklist </button>
+        <button class="text-right btn btn-success" style="float: right;margin-top: 13px; margin-right:  10px;" (click)="viewAppList(viewapplist)" *ngIf="selectedAppList.length != 0">{{selectedAppList.length}} Apps selected</button>
+      </div>
+
+      <div class="container" *ngIf="id != ''">
+        <span class="text-muted">Total Apps: <b>{{totalExchangeApps}}</b>, Total Impressions: <b>{{totalExchangeImpression}}</b></span>
+        <button class="text-right btn btn-primary" style="float: right;margin-top: 13px; margin-left: 10px;" (click)="updateUserAppList()" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" [ngClass]="{'m-show': loading}" > Update app list </button>
+        <button class="text-right btn btn-success" style="float: right;margin-top: 13px; margin-right:  10px;" (click)="viewAppList(viewapplist)" *ngIf="selectedAppList.length != 0"> {{selectedAppList.length}} Apps selected</button>
+        
+      </div>
+    </footer>
+
+    <div class="app-loading show-loader" style="display: none;" [ngClass]="{'m-show': appLoading}">
+  <div>
+     <div class="m-loader m-loader--light m-loader--right" style="width: 30px; box-shadow: none; display: initial;"></div>
+     Loading data...
+  </div>
+  </div>

@@ -1,0 +1,45 @@
+<div class="m-content">         
+          <p-table #dt [columns]="cols" [value]="transactions" [lazy]="true" (onLazyLoad)="loadTransactionsLazy($event)" 
+        [paginator]="true" [rows]="25" [totalRecords]="totalRecords" [loading]="loading" >
+        
+          <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th pSortableColumn="id" width="20%">ID
+                  <p-sortIcon field="id"></p-sortIcon>
+                </th>
+                <th width="20%">Amount</th>
+                <th width="20%" class="text-center">Status</th>
+                <th width="20%" pSortableColumn="time" class="text-center">Time
+                  <p-sortIcon field="time"></p-sortIcon>
+                </th>
+                <th width="20%" class="text-center">Invoice</th>
+           </tr>
+        </ng-template>
+        <ng-template 
+        pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+                <td width="20%">{{rowData.id}}</td>
+                <td width="20%">{{rowData.amount}} </td>
+                 <td width="20%" class="text-center">
+                  <label class="btn btn-sm btn-success" *ngIf="rowData.status == 1">Completed</label>
+                  <label class="btn btn-sm btn-danger" *ngIf="rowData.status != 1">Failed</label>
+                   
+              </td>
+                <td width="20%" class="text-center">{{rowData.time}}</td>
+               
+                <td width="20%" class="text-center"><a class="btn btn-sm btn-primary" [routerLink] = "['/invoice',rowData.id]">View invoice</a></td>
+                
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td  class="text-center" colspan="5">
+                No records found
+            </td>
+        </tr>
+    </ng-template>
+    </p-table>
+    </div>
+
+

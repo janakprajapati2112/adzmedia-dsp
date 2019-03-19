@@ -1,0 +1,226 @@
+<div class="row filter-row" style="border-bottom: 1px solid #ccc; margin-top: 20px;">
+<div class="general-selected-filters">
+  Filter by: 
+
+  <div class="filter-item" *ngFor="let filter of sFilters">
+     <div class="clause"   *ngIf="filter.values.length > 0">
+        <span class="attribute" (click)="getFilterValues(filter,$event)">{{ filter.label  }} :</span>
+        <span class="value" *ngIf="filter.values.length < 3" (click)="getFilterValues(filter,$event)">{{ arrToString(filter.values)
+          }}</span>
+          <span class="value" *ngIf="filter.values.length >= 3" (click)="getFilterValues(filter,$event)">{{ filter.values | slice:0:2 }} +{{ filter.values.length-2 }}</span>
+
+          <span class="remove-icon" ><i class="fa fa-times-circle" (click)="updateFilters(filter,'d')"></i></span>
+        
+    </div>
+     </div>
+
+
+  </div>
+
+
+	<div class="addfilter btn btn-sm" (click)="openFilterSelection($event)" style="margin: -2px 0px;
+    text-align: right;
+    right: 10px;
+    position: absolute;">
+	<i class="fa fa-plus"></i> 
+	</div>
+</div>
+
+<div class="popover-overlay-container" *ngIf="filterSelection" style="overflow: hidden;" >
+      <div class="popover-overlay" (click)="hidePopup()"></div>
+      <div></div>
+</div>
+
+<div class="add-filter-menu" *ngIf="filterSelection" [ngStyle]="{'top': posY, 'left': posX}" >
+   
+   <div class="add-filter-menu-results-container" >
+      <div class="attribute-selector" *ngIf="dimentionSelection">
+         <div class="clearable-input"  placeholder="Search">
+            <input placeholder="Search" type="text" [(ngModel)]="query">
+            <div class="delete-button"></div>
+         </div>
+         <ul class="menu-options attribute-choices" >
+         		<li (click)="loadExchanges()">Exchange</li>
+         		<li (click)="loadCountry()">Countries</li>
+         		<li (click)="loadCarriers()">Carrier</li>
+         		<li (click)="loadOS()">Operating System</li>
+         		<li (click)="loadOSVersion()">OS Version</li>
+         		<li (click)="loadNetworkType()">Network Type</li>
+         		<li (click)="loadCreativeSize()">Creative Size</li>
+         		<li (click)="loadAppName()">App Name</li>
+         </ul>
+      </div>
+      <div class="value-selector" *ngIf="dValueSelection">
+         <div class="clearable-input" >
+            <input placeholder="Search" type="text" name="searchText" [(ngModel)]="q" (input)="onSearchChange()">
+            <div class="delete-button" ></div>
+         </div>
+         <div class="list-cont">
+
+            <div class="dvalue-loading" *ngIf="filterLoading==true">
+               <div class="m-loader m-loader--primary" style="width: 30px; display: inline-block;"></div>
+            </div>
+
+            <ul class="menu-options attribute-values" >
+         		<li *ngFor="let dimention of availableFilters"  class="" >
+         			<label class="m-checkbox app-checkbox" >
+    						<input type="checkbox" (click)="selectFilters(dimention.id)" [checked]="((-1 !== checkIfDimvalueExists(dimention.id)) ? 'checked' : '')" />
+    						{{ dimention['text']}}
+						<span></span>
+					</label>
+         
+
+         		</li> 
+         	</ul>
+            <!-- <div class="no-results">No results</div> -->
+         </div>
+         <div class="bottom-bar text-right" >
+            
+           	<button class="apply-button btn btn-sm btn-danger " (click)="goBackToDimensions()" style="position: absolute;
+    top: 6px;
+    right: 77px;
+    height: 28px;
+    font-size: 13px;">Back</button>
+            <button class="apply-button btn btn-sm btn-primary" (click)="loadApps()">Apply</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+<div id="main" style="margin-top: 26px;">
+
+      <table class="table table-striped applist-table table-bordered" >
+          <thead>
+          <tr>
+              <th width="10%" class="text-center">App Id</th>
+              <th width="50%">App/Site</th>
+              <th width="20%">Impressions</th>
+              <th width="20%">Avg. Bid Price</th>
+          </tr>
+          </thead>
+
+          <tbody class="search-results" style="width:100%" infinite-scroll
+                      [infiniteScrollDistance]="2.5"
+                      [infiniteScrollThrottle]="300"
+                      [scrollWindow] = "true"
+                      (scrolled)="onScroll()"
+                      (scrolledUp)="onScrollUp()">
+          <tr *ngFor="let item of apps; index as i">
+              <td width="10%" class="text-center">
+                 <label class="m-checkbox m-checkbox--air m-checkbox--state-brand">
+                <input type="checkbox" value="{{item.sid}}" (change)="updateAppList(item)" [checked]="((-1 !== checkApplistState(item.sid)) ? 'checked' : '')"
+                                    >
+                      <span></span></label>
+
+              </td>
+              <td width="50%">{{ item.appName }} ({{item.sid}}) </td>
+              <td width="20%">{{ convertToDecimals(item.impressions,2) }}</td>
+              <td width="20%">{{ item.avgMinPrice | currency:'USD' }}</td>
+          </tr>
+          <tr *ngIf="apps.length == 0" class="text-center">
+              <td width="100%" colspan="4">No data found</td>
+              
+          </tr>    
+   </tbody>
+   </table>
+  
+</div>
+
+<footer class="sfooter">
+      <div class="container" *ngIf="id == ''">
+        <span class="text-muted">Total Apps: <b>{{totalExchangeApps}}</b>, Total Impressions: <b>{{totalExchangeImpression}}</b></span>
+        <button class="text-right btn btn-primary" style="float: right;margin-top: 13px; margin-left: 10px;" (click)="addNewAppList(createapplist,0)"> Create Whitelist </button>
+        <button class="text-right btn btn-danger" style="float: right;margin-top: 13px;" (click)="addNewAppList(createapplist,1)"> Create Blacklist </button>
+        <button class="text-right btn btn-success" style="float: right;margin-top: 13px; margin-right:  10px;" (click)="viewAppList(viewapplist)" *ngIf="selectedAppList.length != 0">{{selectedAppList.length}} Apps selected</button>
+      </div>
+
+      <div class="container" *ngIf="id != ''">
+        <span class="text-muted">Total Apps: <b>{{totalExchangeApps}}</b>, Total Impressions: <b>{{totalExchangeImpression}}</b></span>
+        <button class="text-right btn btn-primary" style="float: right;margin-top: 13px; margin-left: 10px;" (click)="updateUserAppList()" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" [ngClass]="{'m-show': loading}" > Update app list </button>
+        <button class="text-right btn btn-success" style="float: right;margin-top: 13px; margin-right:  10px;" (click)="viewAppList(viewapplist)" *ngIf="selectedAppList.length != 0"> {{selectedAppList.length}} Apps selected</button>
+        
+      </div>
+    </footer>
+
+    <div class="app-loading show-loader" style="display: none;" [ngClass]="{'m-show': appLoading}">
+  <div>
+     <div class="m-loader m-loader--light m-loader--right" style="width: 30px; box-shadow: none; display: initial;"></div>
+     Loading data...
+  </div>
+  </div>
+
+      
+
+<ng-template #viewapplist let-c="close" let-d="dismiss">
+   <div class="modal-header bg-primary">
+      <h4 class="modal-title text-white">Selected Apps</h4>
+      <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+
+      <table class="table table-striped applist-table table-bordered">
+          <thead>
+              <tr>
+                  <th width="10%" class="text-center">#</th>
+                  <th width="20%" >App Id</th>
+                  <th width="70%">App/Site</th>
+                 
+              </tr>
+              </thead>
+
+              <tbody>
+                  <tr *ngFor="let item of selectedAppList; index as i">
+                            <td width="10%" class="text-center">
+                               <label class="m-checkbox m-checkbox--air m-checkbox--state-brand">
+                              <input type="checkbox" value="{{item.sid}}" (change)="updateAppList(item,filterExchanges)" 
+                                    [checked]="((-1 !== checkApplistState(item.sid,filterExchanges)) ? 'checked' : '')"
+                                    >
+                                    <span></span></label>
+
+                            </td>
+                            <td>{{item.sid}}</td>
+                            <td width="90%">{{ item.appName }} </td>
+                            
+                        </tr>
+              </tbody>
+       </table>
+
+    </div>
+    <div class="modal-footer text-center">
+        <button class="btn btn-success" (click)="d('Cross click')">Submit</button>
+        <button class="btn btn-danger" (click)="d('Cross click')">Close</button>
+
+    </div>
+  </ng-template>
+
+  <ng-template #createapplist let-c="close" let-d="dismiss">
+   <div class="modal-header bg-primary">
+      <h4 class="modal-title text-white">Create/Download Application list</h4>
+      <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+
+      <form class="m-form m-form--fit m-form--label-align-right" novalidate="novalidate">  
+            <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+              <label for="nativeCreativeName">Applist Name</label>
+                  <input aria-describedby="appListName" class="form-control m-input" id="appListName" placeholder="Applist name" type="text" name="appListName" [(ngModel)]="appListName" >
+              </div>
+
+              <div class="form-group m-form__group text-center" style="padding-left: 0px; padding-right: 0px;">
+                     <button class="btn btn-success" type="button" id="submitAppListData" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" (click)="createNewAppList()" [ngClass]="{'m-show': loading}">
+                            Submit
+                     </button>
+
+                    
+
+
+              </div>
+      </form>
+
+    </div>
+  </ng-template>

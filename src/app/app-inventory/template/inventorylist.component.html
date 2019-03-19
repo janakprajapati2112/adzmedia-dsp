@@ -1,0 +1,157 @@
+<div class="m-content">
+    <!--begin::Portlet-->
+    <div class="m-portlet">
+        <div class="m-portlet__head">
+        <div class="m-portlet__head-caption">
+          <div class="m-portlet__head-title">
+           
+            <h3 class="m-portlet__head-text">
+             My App list
+            </h3>
+          </div>      
+        </div>
+        <div class="m-portlet__head-tools">
+          <button type="button" class="btn btn-primary" (click)="openCsvImporter(uploadcsv)">
+            <i class="la la-cloud-upload"></i>&nbsp; Import CSV</button>
+          <button type="button" class="btn btn-info"><i class="flaticon-add"></i>&nbsp;Inventory Explorar</button>
+        </div>
+      </div>
+        <div class="m-portlet__body" id="applist-container">
+       
+
+       	<p-table #dt [columns]="cols" [value]="applist" [totalRecords]="totalRecords" >
+          <ng-template pTemplate="caption">
+            <div class="text-right ">        
+              
+                <div class="m-input-icon  m-input-icon--right">
+                <input class="form-control m-input" type="text" class="form-control" pInputText  placeholder="Search applist..." (input)="dt.filterGlobal($event.target.value, 'contains')">
+            
+                 <span class="m-input-icon__icon m-input-icon__icon--right"><span><i class="fa fa-search"></i></span></span>
+               </div>
+            </div>
+        </ng-template>
+	     <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th pSortableColumn="id" width="15%">Applist ID</th>
+                <th width="30%">Applist Name</th>
+                <th width="15%" class="text-center">  </th>
+                <th width="40%" class="text-center">Action</th>
+           </tr>
+        </ng-template>
+	     <ng-template 
+        pTemplate="body" let-rowData let-columns>
+            <tr>
+              <td class="m-datatable__cell">{{rowData.id}}</td>
+              <td>{{rowData.text}}</td>
+              
+              <td class="text-center">
+                <label  *ngIf="rowData.blacklist == 1" class="m-badge m-badge--brand m-badge--wide" >Blacklist</label>
+                <label *ngIf="rowData.blacklist == 0" class="m-badge m-badge--success m-badge--wide" >Whitelist</label>
+                
+               
+              </td>
+             
+             
+              <td class="text-center m-datatable__cell">
+                <a routerLink='/edit-inventory/{{rowData.id}}' class="btn btn-primary" ><i class="fa fa-edit"></i> Edit Applist</a>
+                <button class="btn btn-danger" 
+                (click)="checkUserApplistStatus(rowData.id)" 
+                [disabled]="deletebtnloading" 
+                [ngClass]="{'m-loader m-loader--right m-loader--light': deletebtnloading}"  
+                [ngClass]="{'m-show': deletebtnloading}"><i class="fa fa-trash-o" ></i> Delete</button>
+              </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td  class="text-center" colspan="6">
+                No records found
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+        </div>
+        <!--begin::Form-->
+        <div>
+      
+    </div>
+<!--end::Form-->
+</div>
+<ng-template #viewcampaignlist let-c="close" let-d="dismiss">
+   <div class="modal-header bg-primary">
+      <h4 class="modal-title text-white">Are you sure?</h4>
+      <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+<div class="alert alert-danger" role="alert">
+            Your selected applist is attached with below campaigns. If you delete selected applist all mentioned campaigns will be disabled.
+          </div>
+      <table class="table table-striped applist-table table-bordered">
+          
+          <thead>
+              <tr>
+                  <th width="20%" >id</th>
+                  <th width="80%" >Name</th>
+              </tr>
+              </thead>
+
+              <tbody>
+                  <tr *ngFor="let item of campaigns; index as i">
+                      <td width="20%">{{item.id}}</td>
+                      <td width="80%">{{ item.name }} </td>
+                  </tr>
+              </tbody>
+       </table>
+
+    </div>
+    <div class="modal-footer text-center">
+        <button class="btn btn-success" (click)="deleteUserAppList(deleteApplistId)" [disabled]="deletebtnloading" 
+                [ngClass]="{'m-loader m-loader--right m-loader--light': deletebtnloading}"  
+                [ngClass]="{'m-show': deletebtnloading}" >Delete Applist</button>
+        <button class="btn btn-danger" (click)="d('Cross click')">Cancel</button>
+
+    </div>
+  </ng-template>
+
+
+  <ng-template #uploadcsv let-c="close" let-d="dismiss">
+   <div class="modal-header bg-primary">
+      <h4 class="modal-title text-white">Import CSV</h4>
+      <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+          
+      <form (ngSubmit)="f.form.valid && uploadAppListCsv()" #f="ngForm" class="m-form m-form--fit m-form--label-align-right" id="uploadApplist" name="uploadApplist"  novalidate="novalidate">
+   
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="appListName">
+                            Applist Name
+                        </label>
+                        <input aria-describedby="appListName" class="form-control m-input" id="appListName"  type="text" name="appListName" [(ngModel)]="appListName"  >
+                        
+                    </div>
+
+                  
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Upload CSV</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="appListCSV" name="appListCSV" (change)="onImportCsvChange($event)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                            <label class="custom-file-label" for="appListCSV">
+                                {{fileName}}
+                            </label>
+                        </div>
+                     </div>
+             </form>
+
+    </div>
+    <div class="modal-footer text-center">
+        <button class="btn btn-success" (click)="uploadAppListCsv()" >Upload</button>
+        <button class="btn btn-danger" (click)="d('Cross click')">Reset</button>
+    </div>
+  </ng-template>

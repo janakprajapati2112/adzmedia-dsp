@@ -1,0 +1,716 @@
+<!-- BEGIN: Subheader -->
+<div class="m-subheader" appunwraptag="">
+    <div class="d-flex align-items-center">
+        <div class="mr-auto">
+           
+            
+        </div>
+        <div> 
+          <!--  <select class="form-control m-bootstrap-select m_selectpicker" [(ngModel)]="selectedCreatives" id="creative_options" (change)="loadCreativesModel(content)" style="width: 300px;">
+                <option value="0" selected disabled>Select Creative</option>
+                <option *ngFor="let c of creativeTypes" [ngValue]="c">{{c.name}}</option>
+            </select> -->
+
+            <button class="btn btn-brand dropdown-toggle btn-flat" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   <i class="fa fa-plus"></i> Add Creatives
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" >
+                    <a class="dropdown-item"  *ngFor="let s of creativeTypes" (click)="loadCreativesModel(content,s)">{{s.name}}</a>
+
+                  </div>
+
+        </div>
+    </div>
+</div>
+<!-- END: Subheader -->
+<div class="m-content">
+    <!--begin::Portlet-->
+    <div class="m-portlet">
+       
+        <div class="m-portlet__body">
+          <div class="creative-filter m--margin-bottom-30">
+            <div class="row">
+                <div class="col-md-5ths col-xs-6">
+                  <input  class="form-control m-input" id="bannerCreativeName" placeholder="Search by name or id" type="text" name="creativeSearchName"  [(ngModel)]="filterCreativeName" (keyup.enter)= "loadCreativeTable()"> 
+                </div>
+                <div class="col-md-5ths col-xs-6">
+                  <ng-select [items]="creativeTypesForFilter" [(ngModel)]="filterCreativeTypes"
+                           bindLabel="name"
+                           placeholder="Select creative type"
+                           bindValue="id"
+
+                         >
+                 </ng-select>
+
+                </div>
+                <div class="col-md-5ths col-xs-6">
+                  <ng-select [items]="creativeStatus" [(ngModel)]="filterCreativeStatus"
+                           bindLabel="name"
+                           placeholder="Select creative status"
+                           bindValue="id"
+                         >
+                 </ng-select>
+                </div>
+                <div class="col-md-5ths col-xs-6">
+                  <ng-select [items]="creativeSizes" [(ngModel)]="filterCreativeNameSize"
+                           bindLabel="name"
+                           placeholder="Select creative size"
+                           bindValue="id"
+                         >
+                 </ng-select>
+
+                </div>
+                <div class="col-md-5ths col-xs-6">
+                   <button class="btn btn-primary m-btn m-btn--icon m-btn--wide" type="submit" id="searchCreatives" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" (click)="loadCreativeTable()">
+                            <span><i class="fa fa-search"></i>
+                              <span> Search Creatives</span>
+                            </span>
+                        </button>
+                </div>
+
+            </div>
+
+          </div>  
+          <hr class="m--margin-bottom-20 m--margin-top-20">
+          <p-table [columns]="cols" [value]="creatives" [lazy]="true" (onLazyLoad)="loadCreativesLazy($event)" 
+        [paginator]="true" [rows]="10" [totalRecords]="totalRecords" [loading]="loading" >
+           <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th pSortableColumn="id" width="10%">ID
+                  <p-sortIcon field="id"></p-sortIcon>
+                </th>
+                <th width="20%">Creative Name</th>
+                <th width="10%">Creative Size</th>
+                <th width="20%" class="text-center">Status</th>
+                <th width="10%" class="text-center">Type</th>
+                
+                <th width="20%" class="text-center">Action</th>
+           </tr>
+        </ng-template>
+        <ng-template 
+        pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+              <td class="m-datatable__cell">{{rowData.id}}</td>
+              <td>{{rowData.name}}</td>
+              <td>{{rowData.width}} X {{rowData.height}}</td>
+              <td class="text-center">
+                <label  *ngIf="rowData.status == 1" class="m-badge m-badge--success m-badge--wide" >Active</label>
+                <label *ngIf="rowData.status == 0" class="m-badge m-badge--info m-badge--wide" >Under Review</label>
+                <label *ngIf="rowData.status == 2" class="m-badge m-badge--danger m-badge--wide" >Deleted</label>
+              </td>
+             
+              <td class="text-center m-datatable__cell">
+                <label  *ngIf="rowData.type == 2" class="m-badge m-badge--success m-badge--wide" >Banner</label>
+                <label *ngIf="rowData.type == 3" class="m-badge m-badge--success m-badge--wide" >Richmedia</label>
+                <label *ngIf="rowData.type == 4" class="m-badge m-badge--success m-badge--wide" >Native</label>
+              </td>
+              <td class="text-center m-datatable__cell">
+                <button class="btn btn-sm btn-primary" (click)="viewCreativePreview(creativepreview,rowData.link)"><i class="fa fa-eye"></i> Preview</button>
+                <button class="btn btn-sm btn-info" (click) ="editCreativeModel(editcreatives,rowData.id,rowData.type)"><i class="fa fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger" (click) ="deleteUploadedCreatives(rowData.id)"><i class="fa fa-trash-o"></i></button>
+              </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td  class="text-center" colspan="6">
+                No records found
+            </td>
+        </tr>
+    </ng-template>
+    </p-table>
+
+
+        </div>
+        <!--begin::Form-->
+        <div>
+      
+    </div>
+<!--end::Form-->
+</div>
+<!--end::Portlet--> <!--begin::Modal-->
+
+<!--begin::Section-->
+<ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header bg-primary border-radius-none">
+        <h4 class="modal-title text-white">Upload Creative</h4>
+        <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div [ngClass]="(selectedCreatives.id=='1')?'show':'hide'">
+          <form (ngSubmit)="f.form.valid && uploadBannerCreative()" #f="ngForm"   action="" class="m-form m-form--fit m-form--label-align-right" id="bannerCreatives" name="bannerCreatives"  novalidate="novalidate"  >
+         <div class="alert m-alert--default fade show m--margin-bottom-30" role="alert">
+               <strong>Upload Instruction:</strong>  <br>      
+               <strong>Allowed Sizes:</strong> 120X20, 168X28, 216X36, 125X50, 320X50, 300X20, 600X100, 320X48, 640X96, 640X100, 300X250, 600X500, 120X600, 240X1200, 468X60, 936X120, 728X90, 1456X180, 1024X768, 1536X2048, 320X480, 640X960, 1280X800, 1600X2560 <br>
+                <strong>Allowed Extensions:</strong> PNG, JPG, JPEG, GIF
+            </div>
+           <div class="row">
+             <div class="col-md-8">
+                <div class="m-portlet__body">
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="bannerCreativeName">
+                           Creative Name
+                        </label>
+                        <input aria-describedby="bannerCreativeName" class="form-control m-input" id="bannerCreativeName" placeholder="Creative name" type="text" name="bannerCreativeName"  [(ngModel)]="bannerCreativeName"  bannerCreativeName>
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="bannerImage">Upload Creative</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="bannerImage" name="bannerImage" (change)="onSelectFile($event)"  >
+                            <label class="custom-file-label" for="bannerImage" bannerImage>
+                                
+                                {{bannerFileName}}
+                            </label>
+                        </div>
+                     </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="bannerCreativeURL">
+                            Click URL
+                        </label>
+                        <input class="form-control m-input" id="bannerCreativeURL" placeholder="Click URL" type="text" name="bannerCreativeURL" [(ngModel)]="bannerCreativeURL" bannerCreativeURL>
+                    </div>
+                </div>
+                <div class="m-portlet__foot m-portlet__foot--fit" >
+                    <div class="m-form__actions" style="padding-left: 0px; padding-right: 0px;">
+                        <button [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" class="btn btn-primary" type="submit" id="submitBannerCreativeForm" >
+                            Submit
+                        </button>
+                        <button class="btn btn-danger" type="reset" (click)="c('Close click')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                 
+             </div>
+            <div class="col-md-4 text-center"> 
+                <img [src]="bannerImagePreview" class="img-responsive" ng-show="filepreview" name="bannerImagePreview" width="100%"/>
+            </div>
+
+            </div>
+        </form>
+        </div>
+
+      <div [ngClass]="(selectedCreatives.id=='2')?'show':'hide'">
+       <form (ngSubmit)="f.form.valid && uploadRichmediaCreative()" #f="ngForm" class="m-form m-form--fit m-form--label-align-right" id="richmediaCreatives" name="richmediaCreatives"  novalidate="novalidate">
+           <div class="row">
+             <div class="col-md-8">
+                <div class="m-portlet__body">
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeName">
+                           Creative Name
+                        </label>
+                        <input aria-describedby="richmediaCreativeName" class="form-control m-input" id="richmediaCreativeName" placeholder="Creative name" type="text" name="richmediaCreativeName" [(ngModel)]="richmediaCreativeName"  >
+                        
+                    </div>
+
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeName">
+                           Secure/non-secure creative 
+                        </label>
+                        <div class="m-radio-inline">
+                          <label class="m-radio m-radio--state-brand">
+                            <input name="secure" type="radio" value="1" [(ngModel)]="secureCreative">
+                              HTTPS (Secure)
+                            <span></span>
+                          </label>
+                          <label class="m-radio m-radio--state-brand">
+                            <input name="secure" type="radio" value="0" checked  [(ngModel)]="secureCreative">
+                            HTTP (non-secure)
+                            <span></span>
+                          </label>
+                          
+                        </div>
+                        
+                    </div>
+
+
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeCode">
+                           HTML/JS Code
+                        </label>
+                        <textarea aria-describedby="richmediaCreativeCode" class="form-control m-input" id="richmediaCreativeCode" placeholder="HTML/JS Code" type="text" name="richmediaCreativeCode" [(ngModel)]="richmediaCreativeCode"  ></textarea>
+                    </div>
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Creative Preview</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="richMediaCreativePreview" name="richMediaCreativePreview" (change)="onRichmediaSelectFile($event)">
+                            <label class="custom-file-label" for="richMediaCreativePreview">
+                                {{richMediaFileName}}
+                            </label>
+                        </div>
+                     </div>
+                     <div class="row">
+                     <div class="col-md-6">
+                        <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                            <label for="richmediaCreativeWidth">
+                              Width
+                            </label>
+                            <input aria-describedby="" class="form-control m-input" id="richmediaCreativeWidth" placeholder="Width" type="text" name="richmediaCreativeWidth" [(ngModel)]="richmediaCreativeWidth"  >
+                        </div>
+                     </div>
+                      <div class="col-md-6">
+                        <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                            <label for="richmediaCreativeHeight">
+                              Height
+                            </label>
+                            <input aria-describedby="" class="form-control m-input" id="richmediaCreativeHeight" placeholder="Height" type="text" name="richmediaCreativeHeight" [(ngModel)]="richmediaCreativeHeight" >
+                        </div>
+                    </div>
+                     </div>
+                    
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaClickURL">
+                            Click URL
+                        </label>
+                        <input class="form-control m-input" id="richmediaClickURL" placeholder="Click URL" type="text" name="richmediaClickURL" [(ngModel)]="richmediaClickURL" >
+                    </div>
+                </div>
+                <div class="m-portlet__foot m-portlet__foot--fit" >
+                    <div class="m-form__actions" style="padding-left: 0px; padding-right: 0px;">
+                        <button class="btn btn-primary" type="submit" id="submitRichmediaCreative" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}">
+                            Submit
+                        </button>
+                        <button class="btn btn-danger" type="reset" (click)="c('Close click')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                 
+             </div>
+            <div class="col-md-4 text-center"> 
+                 <img [src]="richMediaPreviewImage" class="img-responsive" ng-show="filepreview" name="bannerImagePreview" width="100%"/>
+            </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    <div [ngClass]="(selectedCreatives.id=='4')?'show':'hide'">
+       <form (ngSubmit)="f.form.valid && uploadNativeCreative()" #f="ngForm" class="m-form m-form--fit m-form--label-align-right" id="richmediaCreatives" name="richmediaCreatives"  novalidate="novalidate">
+           <div class="row">
+             <div class="col-md-8">
+                <div class="m-portlet__body">
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeName">
+                           Creative Name
+                        </label>
+                        <input aria-describedby="nativeCreativeName" class="form-control m-input" id="nativeCreativeName" placeholder="Creative name" type="text" name="nativeCreativeName" [(ngModel)]="nativeCreativeName" >
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeTitle">
+                           Creative Title
+                        </label>
+                        <input aria-describedby="nativeCreativeTitle" class="form-control m-input" id="nativeCreativeTitle" placeholder="Creative Title" type="text" name="nativeCreativeTitle"  [(ngModel)]="nativeCreativeTitle" >
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeCode">
+                          Description
+                        </label>
+                        <textarea aria-describedby="nativeCreativeDescription" class="form-control m-input" id="nativeCreativeDescription" placeholder="Creative Description" type="text" name="nativeCreativeDescription" [(ngModel)]="nativeCreativeDescription"></textarea>
+                    </div>
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Main Image</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="nativeCreativeMainPreview" name="nativeCreativeMainPreview" (change)="onNativeMainImageUpload($event)">
+                            <label class="custom-file-label" for="nativeCreativeMainPreview">
+                                {{nativeCreativeMainPreviewFileName}}
+                            </label>
+                        </div>
+                     </div>
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Icon Image</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="nativeCreativeIcon" name="nativeCreativeIcon" (change)="onNativeIconUpload($event)">
+                            <label class="custom-file-label" for="nativeCreativeIcon">
+                                {{nativeCreativeIconFileName}}
+                            </label>
+                        </div>
+                     </div>
+                    
+                    
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeRating">
+                           Rating
+                        </label>
+                        <input aria-describedby="nativeCreativeRating" class="form-control m-input" id="nativeCreativeRating" placeholder="Rating" type="text" name="nativeCreativeRating"  [(ngModel)]="currentRate" >
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCalltoAction">
+                            Call to action
+                        </label>
+                        <input class="form-control m-input" id="nativeCalltoAction" placeholder="Call to action" type="text" name="nativeCalltoAction" [(ngModel)]="nativeCalltoAction">
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeURL">
+                            Click URL
+                        </label>
+                        <input class="form-control m-input" id="nativeCreativeURL" placeholder="Click URL" type="text" name="nativeCreativeURL" [(ngModel)]="nativeCreativeURL">
+                    </div>
+                    
+                </div>
+                <div class="m-portlet__foot m-portlet__foot--fit" >
+                    <div class="m-form__actions" style="padding-left: 0px; padding-right: 0px;">
+                        <button class="btn btn-primary" type="submit" id="submitNativeCreative" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}">
+                            Submit
+                        </button>
+                        <button class="btn btn-danger" type="reset" (click)="c('Close click')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                 
+             </div>
+            <div class="col-md-4 text-center"> 
+                
+                     <div class="feed_adformat">
+                       <div class="feed_ads">
+                          <span class="sponsertext">Sponsored</span>
+                          <div class="feed_content row">
+                             <div class="icon_image2 col-md-3 " style="padding:0px;">
+                                <img [src]="nativeCreativeIcon"  style="max-width: 100%; width: 100%;">
+                             </div>
+                             <div class="info col-md-6 text-left" style="padding:0px; margin-left: 15px;">
+                                <span class="feed_title">
+                                    {{(nativeCreativeTitle) || "Title"}}
+                                 </span>
+                                <div class="range">
+                                  <ngb-rating [rate]=currentRate></ngb-rating>
+                                </div>
+                             </div>
+
+                             <div class="col-md-12 text-left no-padding" style="margin-top: 10px; margin-bottom: 10px; padding:0px;">
+                                <div class="main-image text-left">
+                                    <img [src]="nativeCreativeMainPreview"  style="max-width: 100%; width: 100%;">
+                                </div>
+                                <div style="margin-top: 10px; margin-bottom: 10px; padding:0px;"> {{(nativeCreativeDescription) || "Description"}}</div>
+
+                             </div>
+
+                             <div class="desc col-md-12 text-right">
+                                <div class="">
+                                   <button class="btn btn-primary" type="button">
+                                    {{(nativeCalltoAction) || "Action text"}}
+                                   </button>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+
+                
+            </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    </div>  
+</ng-template>
+
+<ng-template #creativepreview let-c="close" let-d="dismiss">
+   
+     <div class="modal-body">
+          <div class="row">
+              <div class="col-md-12">
+                    <img [src]="tableCreativePreview" class="img-responsive" ng-show="filepreview" name="" width="100%"/>
+              </div>
+          </div>
+     </div>
+</ng-template>
+
+<ng-template #editcreatives let-c="close" let-d="dismiss">
+    <div class="modal-header bg-primary border-radius-none">
+        <h4 class="modal-title text-white">Upload Creative</h4>
+        <button type="button" class="close modal-lg-close-icon" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div [ngClass]="(creativeType=='2')?'show':'hide'">
+          <form (ngSubmit)="f.form.valid && uploadBannerCreativeEdit()" #f="ngForm"   action="" class="m-form m-form--fit m-form--label-align-right" id="bannerCreatives" name="bannerCreatives"  novalidate="novalidate"  >
+         <div class="alert m-alert--default fade show m--margin-bottom-30" role="alert">
+               <strong>Upload Instruction:</strong>  <br>      
+               <strong>Allowed Sizes:</strong> 120X20, 168X28, 216X36, 125X50, 320X50, 300X20, 600X100, 320X48, 640X96, 640X100, 300X250, 600X500, 120X600, 240X1200, 468X60, 936X120, 728X90, 1456X180, 1024X768, 1536X2048, 320X480, 640X960, 1280X800, 1600X2560 <br>
+                <strong>Allowed Extensions:</strong> PNG, JPG, JPEG, GIF
+            </div>
+           <div class="row">
+             <div class="col-md-8">
+                <div class="m-portlet__body">
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="bannerCreativeName">
+                           Creative Name
+                        </label>
+                        <input aria-describedby="bannerCreativeName" class="form-control m-input" id="bannerCreativeName" placeholder="Creative name" type="text" name="bannerCreativeName"  [(ngModel)]="bannerCreativeName"  bannerCreativeName>
+
+                        <input  type="hidden" name="bannerCreativeName"  [(ngModel)]="creative_id">
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="bannerImage">Upload Creative</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="bannerImage" name="bannerImage" (change)="onSelectFile($event)"  >
+                            <label class="custom-file-label" for="bannerImage" bannerImage>
+                                
+                                {{bannerFileName}}
+                            </label>
+                        </div>
+                     </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="bannerCreativeURL">
+                            Click URL
+                        </label>
+                        <input class="form-control m-input" id="bannerCreativeURL" placeholder="Click URL" type="text" name="bannerCreativeURL" [(ngModel)]="bannerCreativeURL" bannerCreativeURL>
+                    </div>
+                </div>
+                <div class="m-portlet__foot m-portlet__foot--fit" >
+                    <div class="m-form__actions" style="padding-left: 0px; padding-right: 0px;">
+                        <button [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}" class="btn btn-primary" type="submit" id="submitBannerCreativeFormEdit" >
+                            Submit
+                        </button>
+                        <button class="btn btn-danger" type="reset" (click)="c('Close click')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                 
+             </div>
+            <div class="col-md-4 text-center"> 
+                <img [src]="bannerImagePreview" class="img-responsive" ng-show="filepreview" name="bannerImagePreview" width="100%"/>
+            </div>
+
+            </div>
+        </form>
+        </div>
+
+      <div [ngClass]="(creativeType=='3')?'show':'hide'">
+       <form (ngSubmit)="f.form.valid && uploadRichmediaCreativeEdit()" #f="ngForm" class="m-form m-form--fit m-form--label-align-right" id="richmediaCreatives" name="richmediaCreatives"  novalidate="novalidate">
+           <div class="row">
+             <div class="col-md-8">
+                <div class="m-portlet__body">
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeName">
+                           Creative Name
+                        </label>
+                        <input aria-describedby="richmediaCreativeName" class="form-control m-input" id="richmediaCreativeName" placeholder="Creative name" type="text" name="richmediaCreativeName" [(ngModel)]="richmediaCreativeName"  >
+
+                        <input  type="hidden" name="bannerCreativeName"  [(ngModel)]="creative_id">
+                        
+                    </div>
+
+                       <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeName">
+                           Secure/non-secure creative 
+                        </label>
+                        <div class="m-radio-inline">
+                          <label class="m-radio m-radio--state-brand">
+                            <input name="secure" type="radio" [value]=1 [(ngModel)]="secureCreative">
+                              HTTPS (Secure)
+                            <span></span>
+                          </label>
+                          <label class="m-radio m-radio--state-brand">
+                            <input name="secure" type="radio" [value]=0   [(ngModel)]="secureCreative">
+                            HTTP (non-secure)
+                            <span></span>
+                          </label>
+                          
+                        </div>
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeCode">
+                           HTML/JS Code
+                        </label>
+                        <textarea aria-describedby="richmediaCreativeCode" class="form-control m-input" id="richmediaCreativeCode" placeholder="HTML/JS Code" type="text" name="richmediaCreativeCode" [(ngModel)]="richmediaCreativeCode"  ></textarea>
+                    </div>
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Creative Preview</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="richMediaCreativePreview" name="richMediaCreativePreview" (change)="onRichmediaSelectFile($event)">
+                            <label class="custom-file-label" for="richMediaCreativePreview">
+                                {{richMediaFileName}}
+                            </label>
+                        </div>
+                     </div>
+                     <div class="row">
+                     <div class="col-md-6">
+                        <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                            <label for="richmediaCreativeWidth">
+                              Width
+                            </label>
+                            <input aria-describedby="" class="form-control m-input" id="richmediaCreativeWidth" placeholder="Width" type="text" name="richmediaCreativeWidth" [(ngModel)]="richmediaCreativeWidth"  >
+                        </div>
+                     </div>
+                      <div class="col-md-6">
+                        <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                            <label for="richmediaCreativeHeight">
+                              Height
+                            </label>
+                            <input aria-describedby="" class="form-control m-input" id="richmediaCreativeHeight" placeholder="Height" type="text" name="richmediaCreativeHeight" [(ngModel)]="richmediaCreativeHeight" >
+                        </div>
+                    </div>
+                     </div>
+                    
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaClickURL">
+                            Click URL
+                        </label>
+                        <input class="form-control m-input" id="richmediaClickURL" placeholder="Click URL" type="text" name="richmediaClickURL" [(ngModel)]="richmediaClickURL" >
+                    </div>
+                </div>
+                <div class="m-portlet__foot m-portlet__foot--fit" >
+                    <div class="m-form__actions" style="padding-left: 0px; padding-right: 0px;">
+                        <button class="btn btn-primary" type="submit" id="submitRichmediaCreativeEdit" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}">
+                            Submit
+                        </button>
+                        <button class="btn btn-danger" type="reset" (click)="c('Close click')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                 
+             </div>
+            <div class="col-md-4 text-center"> 
+                 <img [src]="richMediaPreviewImage" class="img-responsive" ng-show="filepreview" name="bannerImagePreview" width="100%"/>
+            </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    <div [ngClass]="(creativeType=='4')?'show':'hide'">
+       <form (ngSubmit)="f.form.valid && uploadNativeCreativeEdit()" #f="ngForm" class="m-form m-form--fit m-form--label-align-right" id="richmediaCreatives" name="richmediaCreatives"  novalidate="novalidate">
+           <div class="row">
+             <div class="col-md-8">
+                <div class="m-portlet__body">
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeName">
+                           Creative Name
+                        </label>
+                        <input aria-describedby="nativeCreativeName" class="form-control m-input" id="nativeCreativeName" placeholder="Creative name" type="text" name="nativeCreativeName" [(ngModel)]="nativeCreativeName">
+
+                        <input  type="hidden" name="bannerCreativeName"  [(ngModel)]="creative_id">
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeTitle">
+                           Creative Title
+                        </label>
+                        <input aria-describedby="nativeCreativeTitle" class="form-control m-input" id="nativeCreativeTitle" placeholder="Creative Title" type="text" name="nativeCreativeTitle"  [(ngModel)]="nativeCreativeTitle" >
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="richmediaCreativeCode">
+                          Description
+                        </label>
+                        <textarea aria-describedby="nativeCreativeDescription" class="form-control m-input" id="nativeCreativeDescription" placeholder="Creative Description" type="text" name="nativeCreativeDescription" [(ngModel)]="nativeCreativeDescription"></textarea>
+                    </div>
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Main Image</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="nativeCreativeMainPreview" name="nativeCreativeMainPreview" (change)="onNativeMainImageUpload($event)">
+                            <label class="custom-file-label" for="nativeCreativeMainPreview">
+                                {{nativeCreativeMainPreviewFileName}}
+                            </label>
+                        </div>
+                     </div>
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="">Icon Image</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="nativeCreativeIcon" name="nativeCreativeIcon" (change)="onNativeIconUpload($event)">
+                            <label class="custom-file-label" for="nativeCreativeIcon">
+                                {{nativeCreativeIconFileName}}
+                            </label>
+                        </div>
+                     </div>
+                    
+                    
+                     <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeRating">
+                           Rating
+                        </label>
+                        <input aria-describedby="nativeCreativeRating" class="form-control m-input" id="nativeCreativeRating" placeholder="Rating" type="text" name="nativeCreativeRating"  [(ngModel)]="currentRate" >
+                        
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCalltoAction">
+                            Call to action
+                        </label>
+                        <input class="form-control m-input" id="nativeCalltoAction" placeholder="Call to action" type="text" name="nativeCalltoAction" [(ngModel)]="nativeCalltoAction">
+                    </div>
+                    <div class="form-group m-form__group" style="padding-left: 0px; padding-right: 0px;">
+                        <label for="nativeCreativeURL">
+                            Click URL
+                        </label>
+                        <input class="form-control m-input" id="nativeCreativeURL" placeholder="Click URL" type="text" name="nativeCreativeURL" [(ngModel)]="nativeCreativeURL">
+                    </div>
+                    
+                </div>
+                <div class="m-portlet__foot m-portlet__foot--fit" >
+                    <div class="m-form__actions" style="padding-left: 0px; padding-right: 0px;">
+                        <button class="btn btn-primary" type="submit" id="submitNativeCreativeEdit" [disabled]="loading" [ngClass]="{'m-loader m-loader--right m-loader--light': loading}">
+                            Submit
+                        </button>
+                        <button class="btn btn-danger" type="reset" (click)="c('Close click')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                 
+             </div>
+            <div class="col-md-4 text-center"> 
+                
+                     <div class="feed_adformat">
+                       <div class="feed_ads">
+                          <span class="sponsertext">Sponsored</span>
+                          <div class="feed_content row">
+                             <div class="icon_image2 col-md-3 " style="padding:0px;">
+                                <img [src]="nativeCreativeIcon"  style="max-width: 100%; width: 100%;">
+                             </div>
+                             <div class="info col-md-6 text-left" style="padding:0px; margin-left: 15px;">
+                                <span class="feed_title">
+                                    {{(nativeCreativeTitle) || "Title"}}
+                                 </span>
+                                <div class="range">
+                                  <ngb-rating [rate]=currentRate></ngb-rating>
+                                </div>
+                             </div>
+
+                             <div class="col-md-12 text-left no-padding" style="margin-top: 10px; margin-bottom: 10px; padding:0px;">
+                                <div class="main-image text-left">
+                                    <img [src]="nativeCreativeMainPreview"  style="max-width: 100%; width: 100%;">
+                                </div>
+                                <div style="margin-top: 10px; margin-bottom: 10px; padding:0px;"> {{(nativeCreativeDescription) || "Description"}}</div>
+
+                             </div>
+
+                             <div class="desc col-md-12 text-right">
+                                <div class="">
+                                   <button class="btn btn-primary" type="button">
+                                    {{(nativeCalltoAction) || "Action text"}}
+                                   </button>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+
+                
+            </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    </div>  
+</ng-template>

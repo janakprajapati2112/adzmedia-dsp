@@ -1,0 +1,103 @@
+<div class="chart-container" >
+  <div class="report-nav" style="margin-top: 30px; margin-bottom: 30px;">
+    <ul class="nav nav-pills nav-justified">
+      <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'impressions'}" (click)="updateGraph('impressions')"><a  class="plotgraph" data-label="Clicks" >{{convertToDecimals(impressions,2)}}<span>Impressions</span></a></li>
+      <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'conversions'}" (click)="updateGraph('conversions')"><a  class="plotgraph" data-label="Conversions" data-yparam="totalConversions">{{convertToDecimals(conversions,2)}}<span>Conversions</span></a></li>
+      
+      <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'wins'}" (click)="updateGraph('wins')"><a  class="plotgraph" data-label="Revenue" data-yparam="totalRevenueOg">{{convertToDecimals(wins,2)}} <span>Wins</span></a></li>
+      <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'spend'}" (click)="updateGraph('spend')" ><a  class="plotgraph" data-label="Payout" data-yparam="totalRevenue">$ {{convertToDecimals(cost,2)}} <span>Spend</span></a></li>
+      <li class="reporting_nav" [ngClass]="{'active': currentGraphSelection == 'bids'}" (click)="updateGraph('bids')"  style="border-right:1px solid #eaeaea;"><a  class="plotgraph" data-label="CR" data-yparam="conversionRatio">{{convertToDecimals(bids,2)}} <span>Bids</span></a></li>
+      
+    </ul>
+  </div>
+  <highcharts-chart
+  [Highcharts]="Highcharts"
+  [constructorType]="chartConstructor"
+  [options]="chartOptions"
+  
+  style="width: 100%; height: 350px; display: block;"
+  ></highcharts-chart>
+</div>
+<hr />
+<div class="m-content">
+  <p-table #dt [columns]="cols" [value]="campaigns" [lazy]="true" (onLazyLoad)="loadCampaignsLazy($event)"
+    [paginator]="true" [rows]="25" [totalRecords]="totalRecords" [loading]="loading" >
+    <ng-template pTemplate="caption">
+    
+    <div class="row" style="margin-top: 20px; margin-bottom: 5px;">
+      <div class="col-md-6" style="padding-left: 8px;">
+        <div class="input-group text-left" style="width: 300px;">
+          <input type="text" class="form-control" placeholder="Search by Id or Name" pInputText   (input)="dt.filterGlobal($event.target.value, 'contains')" >
+          <div class="input-group-append">
+            <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" style="padding-right: 8px;">
+        <div class="dropdown text-right">
+          <button class="btn btn-brand dropdown-toggle btn-flat" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fa fa-filter"></i> {{selectedStatus.text}}
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" >
+            <a class="dropdown-item"  *ngFor="let s of statusOptions" (click)="updateCampaignTable(s)">{{s.text}}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th pSortableColumn="id" width="5%">ID
+      <p-sortIcon field="id"></p-sortIcon>
+    </th>
+    <th width="15%">Name</th>
+    <th width="10%">Total Budget</th>
+    <th width="10%" class="text-center">Daily Budget</th>
+    <th width="10%" class="text-center">Daily Spend</th>
+    <th width="5%" class="text-center">Bid</th>
+    <th width="15%" class="text-center">Status</th>
+    <th width="10%" class="text-center">Created Date</th>
+    <th width="20%" class="text-center">Actions</th>
+  </tr>
+  </ng-template>
+  <ng-template
+  pTemplate="body" let-rowData let-columns="columns">
+  <tr>
+    <td width="5%">{{rowData.id}}</td>
+    <td width="20%">{{rowData.name}} </td>
+    <td width="10%" class="text-center">{{rowData.total_budget}}</td>
+    <td width="10%" class="text-center">{{rowData.daily_budget}}</td>
+    <td width="5%" class="text-center">Daily Spend</td>
+    <td width="10%" class="text-center">{{rowData.bid}}</td>
+    <td width="10%" class="text-center">
+      <label class="btn btn-sm btn-info" *ngIf="rowData.status == 2">Under review</label>
+      <label class="btn btn-sm btn-success" *ngIf="rowData.status == 1">Active</label>
+      <label class="btn btn-sm btn-warning" *ngIf="rowData.status == 4">Paused</label>
+      <label class="btn btn-sm btn-danger" *ngIf="rowData.status == 0">Disabled</label>
+      <label class="btn btn-sm btn-danger" *ngIf="rowData.status == 5">Limit Exceed </label>
+    </td>
+    <td width="10%" class="text-center">{{rowData.created_time}}</td>
+    <td width="20%" class="text-center">
+      <button  class="btn btn-sm btn-success" *ngIf="rowData.status == 4" (click)="updateCampaignStatus(1,rowData.id)"><i class="fa fa-play"></i></button>
+      <button  class="btn btn-sm btn-warning" *ngIf="rowData.status == 1" (click)="updateCampaignStatus(4,rowData.id)"><i class="fa fa-pause"></i></button>
+      <button class="btn btn-sm btn-primary" [routerLink] = "['/edit-campaign',rowData.id]"><i class="fa fa-pencil-square-o"></i></button>
+      <button  class="btn btn-sm btn-info"><i class="fa fa-line-chart"></i></button>
+      <button  class="btn btn-sm btn-warning" (click)="cloneCampaign(rowData.id)"><i class="fa fa-copy"></i></button>
+      <button  class="btn btn-sm btn-danger" (click)="updateCampaignStatus(0,rowData.id)" *ngIf="rowData.status != 0"><i class="fa fa-trash-o"  ></i></button>
+    </td>
+  </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage" let-columns>
+  <tr>
+    <td  class="text-center" colspan="9">
+      No records found
+    </td>
+  </tr>
+  </ng-template>
+</p-table>
+</div>
+<div class="snippet" *ngIf="reportLoading === true">
+<div class="stage">
+  <div class="dot-typing"></div>
+</div>
+</div>
